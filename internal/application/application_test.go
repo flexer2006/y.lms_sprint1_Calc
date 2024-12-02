@@ -9,10 +9,13 @@ import (
 	"testing"
 
 	"github.com/flexer2006/y.lms_sprint1_Calc/internal/application"
+	// эта библиотека улучшает работу с тестами и вообще ее просто использовать
 	"github.com/stretchr/testify/assert"
+	// require останавливает тест при критах и она также удобна
 	"github.com/stretchr/testify/require"
 )
 
+// TestNew проверяет создание приложения с различными портами - базовые случаи
 func TestNew(t *testing.T) {
 	tests := []struct {
 		name         string
@@ -54,6 +57,7 @@ func TestNew(t *testing.T) {
 	}
 }
 
+// TestCalcHandler тесты обработчика HTTP-запросов - база
 func TestCalcHandler(t *testing.T) {
 	tests := []struct {
 		name           string
@@ -176,6 +180,7 @@ func TestCalcHandler(t *testing.T) {
 	}
 }
 
+// TestLogMiddleware тесты middleware для логирования запросов
 func TestLogMiddleware(t *testing.T) {
 	app := application.New()
 	handler := func(w http.ResponseWriter, r *http.Request) {
@@ -191,6 +196,7 @@ func TestLogMiddleware(t *testing.T) {
 	assert.Equal(t, http.StatusOK, rec.Code)
 }
 
+// TestSendJSON тесты для отправки JSON-ответов
 func TestSendJSON(t *testing.T) {
 	app := application.New()
 	rec := httptest.NewRecorder()
@@ -207,7 +213,7 @@ func TestSendJSON(t *testing.T) {
 	assert.Equal(t, testData, response)
 }
 
-// Вспомогательная функция для создания указателя на float64
+// "Хелп" функция для создания указателя на float64
 func ptr(f float64) *float64 {
 	return &f
 }

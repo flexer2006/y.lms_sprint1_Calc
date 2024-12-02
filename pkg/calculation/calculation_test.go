@@ -4,10 +4,11 @@ import (
 	"testing"
 
 	"github.com/flexer2006/y.lms_sprint1_Calc/pkg/calculation"
-
+	// эта библиотека улучшает работу с тестами и вообще ее просто использовать
 	"github.com/stretchr/testify/assert"
 )
 
+// Базовые случаи
 func TestCalc(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -16,7 +17,7 @@ func TestCalc(t *testing.T) {
 		hasError bool
 		err      error
 	}{
-		// Базовые операции
+		// Легкие выражения
 		{"simple addition", "2 + 2", 4, false, nil},
 		{"simple subtraction", "5 - 3", 2, false, nil},
 		{"simple multiplication", "4 * 2", 8, false, nil},
@@ -49,13 +50,13 @@ func TestCalc(t *testing.T) {
 		{"double operators", "2 ++ 2", 0, true, calculation.ErrInvalidExpression},
 		{"invalid number format", "2.2.2 + 1", 0, true, calculation.ErrInvalidExpression},
 
-		// Дополнительные тесты на скобки
+		// Доп. тесты на скобки
 		{"empty parentheses", "()", 0, true, calculation.ErrInvalidExpression},
 		{"missing opening parenthesis", "1 + 2)", 0, true, calculation.ErrMismatchedParens},
 		{"missing closing parenthesis", "(1 + 2", 0, true, calculation.ErrMismatchedParens},
 		{"multiple missing parentheses", "((1 + 2)", 0, true, calculation.ErrMismatchedParens},
 
-		// Дополнительные тесты на пробелы
+		// Доп. тесты на пробелы
 		{"tabs and spaces", "\t1 \t+\t 2\t", 3, false, nil},
 		{"multiple spaces", "1     +     2", 3, false, nil},
 
@@ -94,6 +95,7 @@ func TestCalc(t *testing.T) {
 	}
 }
 
+// TestCalculator_Complex тестирует вычисление сложных математических выражений
 func TestCalculator_Complex(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -135,10 +137,12 @@ func TestCalculator_Complex(t *testing.T) {
 	}
 }
 
+// TestCalculator_EdgeCases проверяет обработку ошибочных выражений
 func TestCalculator_EdgeCases(t *testing.T) {
 	tests := []struct {
-		name     string
-		input    string
+		name  string
+		input string
+
 		hasError bool
 		err      error
 	}{
@@ -185,6 +189,7 @@ func TestCalculator_EdgeCases(t *testing.T) {
 	}
 }
 
+// TestCalculator_LargeNumbers тестирует вычисление с большими числами
 func TestCalculator_LargeNumbers(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -220,6 +225,7 @@ func TestCalculator_LargeNumbers(t *testing.T) {
 	}
 }
 
+// TestCalculator_Stress тестирует вычисление длинных выражений
 func TestCalculator_Stress(t *testing.T) {
 	// Тест на длинное выражение
 	longExpr := "1"

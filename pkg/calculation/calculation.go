@@ -6,10 +6,11 @@ import (
 )
 
 type operator struct {
-	precedence int
-	operation  func(a, b float64) (float64, error)
+	precedence int                                 // Приоритет операции (1 для сложения и вычитания, 2 для умножения и деления)
+	operation  func(a, b float64) (float64, error) // Операция
 }
 
+// operators определяет поддерживаемые математические операции калькулятора.
 var operators = map[rune]operator{
 	'+': {1, func(a, b float64) (float64, error) { return a + b, nil }},
 	'-': {1, func(a, b float64) (float64, error) { return a - b, nil }},
@@ -22,11 +23,13 @@ var operators = map[rune]operator{
 	}},
 }
 
+// Calculator хранит состояние вычислений
 type Calculator struct {
-	numbers    []float64
-	operations []rune
+	numbers    []float64 // Список чисел
+	operations []rune    // Список операций
 }
 
+// NewCalculator создает новый экземпляр калькулятора
 func NewCalculator() *Calculator {
 	return &Calculator{
 		numbers:    make([]float64, 0, 8),
@@ -34,6 +37,7 @@ func NewCalculator() *Calculator {
 	}
 }
 
+// applyOperation применяет операцию к двум последними числами в стеке
 func (c *Calculator) applyOperation() error {
 	if len(c.numbers) < 2 || len(c.operations) == 0 {
 		return ErrInvalidExpression
@@ -59,6 +63,7 @@ func (c *Calculator) applyOperation() error {
 	return nil
 }
 
+// parseNumber читает число из строки и добавляет его в стек чисел
 func (c *Calculator) parseNumber(expression string, startIndex int) (int, error) {
 	endIndex := startIndex
 	for endIndex < len(expression) && (unicode.IsDigit(rune(expression[endIndex])) || rune(expression[endIndex]) == '.') {
@@ -74,6 +79,7 @@ func (c *Calculator) parseNumber(expression string, startIndex int) (int, error)
 	return endIndex - 1, nil
 }
 
+// Calc вычисляет значение математического выражения
 func Calc(expression string) (float64, error) {
 	calc := NewCalculator()
 	expectNumber := true
@@ -140,10 +146,11 @@ func Calc(expression string) (float64, error) {
 			return 0, ErrMismatchedParens
 		}
 	}
-
+	// Возвращает окончательный результат
 	return calc.calculateFinal()
 }
 
+// handleClosingParenthesis обрабатывает закрывающую скобку
 func (c *Calculator) handleClosingParenthesis() error {
 	for len(c.operations) > 0 && c.operations[len(c.operations)-1] != '(' {
 		if err := c.applyOperation(); err != nil {
@@ -159,6 +166,7 @@ func (c *Calculator) handleClosingParenthesis() error {
 	return nil
 }
 
+// handleOperator обрабатывает оператор
 func (c *Calculator) handleOperator(op rune) error {
 	currentOp := operators[op]
 	for len(c.operations) > 0 {
@@ -174,6 +182,7 @@ func (c *Calculator) handleOperator(op rune) error {
 	return nil
 }
 
+// calculateFinal вычисляет окончательный результат
 func (c *Calculator) calculateFinal() (float64, error) {
 	for len(c.operations) > 0 {
 		if err := c.applyOperation(); err != nil {
@@ -188,6 +197,7 @@ func (c *Calculator) calculateFinal() (float64, error) {
 	return c.numbers[0], nil
 }
 
+// isOperator проверяет, является ли символ оператором
 func isOperator(ch rune) bool {
 	_, exists := operators[ch]
 	return exists

@@ -3,13 +3,14 @@ package application
 import "errors"
 
 var (
+	// Пустой запрос
 	ErrEmptyExpression = errors.New("expression is required")
-	ErrInvalidJSON     = errors.New("invalid JSON format")
+	// Неправильный JSON формат
+	ErrInvalidJSON = errors.New("invalid JSON format")
 )
 
-// ErrorResponse представляет структуру ответа с ошибкой
 type ErrorResponse struct {
-	Error       string `json:"error"`
-	Code        int    `json:"code"`
-	Description string `json:"description,omitempty"`
+	Error       string `json:"error"`                 // Сообщение об ошибке
+	Code        int    `json:"code"`                  // Код ошибки
+	Description string `json:"description,omitempty"` // Описание ошибки (необязательное поле)
 }
