@@ -17,16 +17,15 @@ type Config struct {
 }
 
 type Application struct {
-	config *Config
-	logger *log.Logger
+	Config *Config // Измените с config на Config
+	Logger *log.Logger
 }
-
 type Request struct {
 	Expression string `json:"expression"`
 }
 
 type Response struct {
-	Result float64        `json:"result,omitempty"`
+	Result float64        `json:"result"`
 	Error  *ErrorResponse `json:"error,omitempty"`
 }
 
@@ -39,17 +38,17 @@ func New() *Application {
 	}
 
 	return &Application{
-		config: &Config{
+		Config: &Config{
 			Address: fmt.Sprintf(":%s", port),
 			Logger:  logger,
 		},
-		logger: logger,
+		Logger: logger,
 	}
 }
 
 func (app *Application) LogMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		app.logger.Printf("Request: Method=%s Path=%s RemoteAddr=%s",
+		app.Logger.Printf("Request: Method=%s Path=%s RemoteAddr=%s",
 			r.Method, r.URL.Path, r.RemoteAddr)
 		next(w, r)
 	}
@@ -84,6 +83,8 @@ func (app *Application) CalcHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	app.Logger.Printf("Calculated result: %f", result)
+
 	app.SendJSON(w, http.StatusOK, Response{
 		Result: result,
 	})
@@ -111,7 +112,7 @@ func (app *Application) handleCalculationError(w http.ResponseWriter, err error)
 			"Division by Zero",
 			"Cannot divide by zero")
 
-	case calculation.ErrInvalidOperator:
+	case calculation.ErrInvalidOperator: // Добавьте этот случай
 		app.SendError(w, http.StatusBadRequest,
 			"Invalid Operator",
 			"The expression contains an invalid operator")
@@ -124,7 +125,7 @@ func (app *Application) handleCalculationError(w http.ResponseWriter, err error)
 }
 
 func (app *Application) SendError(w http.ResponseWriter, code int, message, description string) {
-	app.logger.Printf("Error: %s - %s (Code: %d)", message, description, code)
+	app.Logger.Printf("Error: %s - %s (Code: %d)", message, description, code)
 
 	response := Response{
 		Error: &ErrorResponse{
@@ -142,7 +143,8 @@ func (app *Application) SendJSON(w http.ResponseWriter, code int, data interface
 	w.WriteHeader(code)
 
 	if err := json.NewEncoder(w).Encode(data); err != nil {
-		app.logger.Printf("Error encoding response: %v", err)
+		app.Logger.Printf("Error encoding response: %v", err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 	}
 }
 
@@ -150,6 +152,6 @@ func (app *Application) RunServer() error {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/calculate", app.LogMiddleware(app.CalcHandler))
 
-	app.logger.Printf("Starting server on %s", app.config.Address)
-	return http.ListenAndServe(app.config.Address, mux)
+	app.Logger.Printf("Starting server on %s", app.Config.Address)
+	return http.ListenAndServe(app.Config.Address, mux)
 }

@@ -67,7 +67,7 @@ func (c *Calculator) applyOperation() error {
 // parseNumber читает число из строки и добавляет его в стек чисел
 func (c *Calculator) parseNumber(expression string, startIndex int) (int, error) {
 	endIndex := startIndex
-	for endIndex < len(expression) && (unicode.IsDigit(rune(expression[endIndex])) || rune(expression[endIndex]) == '.') {
+	for endIndex < len(expression) && (unicode.IsDigit(rune(expression[endIndex])) || rune(expression[endIndex]) == '.' || rune(expression[endIndex]) == 'e' || rune(expression[endIndex]) == '+' || rune(expression[endIndex]) == '-') {
 		endIndex++
 	}
 
@@ -115,7 +115,7 @@ func Calc(expression string) (float64, error) {
 			if i+1 >= len(expression) {
 				return 0, ErrInvalidExpression
 			}
-
+			// Handle unary minus
 			calc.numbers = append(calc.numbers, 0)
 			calc.operations = append(calc.operations, '-')
 			expectNumber = true
@@ -147,7 +147,7 @@ func Calc(expression string) (float64, error) {
 			return 0, ErrMismatchedParens
 		}
 	}
-	// Возвращает окончательный результат
+
 	return calc.calculateFinal()
 }
 
