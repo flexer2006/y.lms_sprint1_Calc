@@ -87,17 +87,7 @@ Content-Type: application/json
 **Ответ с ошибкой:**
 ```
 {
-
-    "error": {
-
-        "error": "Division by Zero",
-
-        "code": 422,
-
-        "description": "Cannot divide by zero"
-
-    }
-
+    "error": "Division by Zero"
 }
 ```
 
