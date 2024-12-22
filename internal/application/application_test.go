@@ -1,3 +1,4 @@
+// Package application_test содержит тесты для пакета application.
 package application_test
 
 import (

@@ -1,3 +1,4 @@
+// Package application предоставляет HTTP-сервер для вычисления математических выражений.
 package application
 
 import (
