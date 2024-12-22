@@ -292,7 +292,7 @@ func TestErrorHandling(t *testing.T) {
 	app := application.New()
 	rec := httptest.NewRecorder()
 
-	app.SendError(rec, http.StatusBadRequest, "Test Error", "Test Description")
+	app.SendError(rec, http.StatusBadRequest, "Test Error")
 
 	assert.Equal(t, http.StatusBadRequest, rec.Code)
 

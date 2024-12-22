@@ -56,24 +56,18 @@ func (app *Application) LogMiddleware(next http.HandlerFunc) http.HandlerFunc {
 
 func (app *Application) CalcHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		app.SendError(w, http.StatusMethodNotAllowed,
-			"Method Not Allowed",
-			"Only POST method is supported")
+		app.SendError(w, http.StatusMethodNotAllowed, "Method Not Allowed")
 		return
 	}
 
 	var req Request
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		app.SendError(w, http.StatusBadRequest,
-			"Invalid Request",
-			"Failed to parse JSON request")
+		app.SendError(w, http.StatusBadRequest, "Invalid Request")
 		return
 	}
 
 	if req.Expression == "" {
-		app.SendError(w, http.StatusBadRequest,
-			"Invalid Request",
-			"Expression is required")
+		app.SendError(w, http.StatusBadRequest, "Expression is required")
 		return
 	}
 
@@ -93,46 +87,30 @@ func (app *Application) CalcHandler(w http.ResponseWriter, r *http.Request) {
 func (app *Application) handleCalculationError(w http.ResponseWriter, err error) {
 	switch err {
 	case calculation.ErrInvalidExpression:
-		app.SendError(w, http.StatusBadRequest,
-			"Invalid Expression",
-			"The expression format is invalid")
+		app.SendError(w, http.StatusBadRequest, "Expression is not valid")
 
 	case calculation.ErrInvalidCharacter:
-		app.SendError(w, http.StatusBadRequest,
-			"Invalid Character",
-			"The expression contains invalid characters")
+		app.SendError(w, http.StatusBadRequest, "Expression is not valid")
 
 	case calculation.ErrMismatchedParens:
-		app.SendError(w, http.StatusBadRequest,
-			"Invalid Parentheses",
-			"The expression has mismatched parentheses")
+		app.SendError(w, http.StatusBadRequest, "Expression is not valid")
 
 	case calculation.ErrDivisionByZero:
-		app.SendError(w, http.StatusUnprocessableEntity,
-			"Division by Zero",
-			"Cannot divide by zero")
+		app.SendError(w, http.StatusUnprocessableEntity, "Division by Zero")
 
-	case calculation.ErrInvalidOperator: // Добавьте этот случай
-		app.SendError(w, http.StatusBadRequest,
-			"Invalid Operator",
-			"The expression contains an invalid operator")
+	case calculation.ErrInvalidOperator:
+		app.SendError(w, http.StatusBadRequest, "Expression is not valid")
 
 	default:
-		app.SendError(w, http.StatusInternalServerError,
-			"Internal Server Error",
-			"An unexpected error occurred")
+		app.SendError(w, http.StatusInternalServerError, "Internal server error")
 	}
 }
 
-func (app *Application) SendError(w http.ResponseWriter, code int, message, description string) {
-	app.Logger.Printf("Error: %s - %s (Code: %d)", message, description, code)
+func (app *Application) SendError(w http.ResponseWriter, code int, message string) {
+	app.Logger.Printf("Error: %s (Code: %d)", message, code)
 
-	response := Response{
-		Error: &ErrorResponse{
-			Error:       message,
-			Code:        code,
-			Description: description,
-		},
+	response := map[string]string{
+		"error": message,
 	}
 
 	app.SendJSON(w, code, response)
