@@ -136,6 +136,20 @@ func TestCalcHandler(t *testing.T) {
 			expectedCode:  http.StatusBadRequest,
 			expectedError: "Invalid Character",
 		},
+		{
+			name:          "invalid operator",
+			method:        http.MethodPost,
+			body:          application.Request{Expression: "2&2"},
+			expectedCode:  http.StatusBadRequest,
+			expectedError: "Invalid Operator",
+		},
+		{
+			name:          "empty expression error",
+			method:        http.MethodPost,
+			body:          application.Request{Expression: ""},
+			expectedCode:  http.StatusBadRequest,
+			expectedError: "Invalid Request",
+		},
 	}
 
 	app := application.New()
@@ -212,6 +226,15 @@ func TestSendJSON(t *testing.T) {
 	err := json.NewDecoder(rec.Body).Decode(&response)
 	require.NoError(t, err)
 	assert.Equal(t, testData, response)
+
+	t.Run("json encoding error", func(t *testing.T) {
+		app := application.New()
+		rec := httptest.NewRecorder()
+
+		app.SendJSON(rec, http.StatusOK, make(chan int))
+
+		assert.Equal(t, http.StatusInternalServerError, rec.Code)
+	})
 }
 
 // "Хелп" функция для создания указателя на float64

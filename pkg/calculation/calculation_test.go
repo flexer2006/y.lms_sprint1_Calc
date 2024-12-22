@@ -239,3 +239,78 @@ func TestCalculator_Stress(t *testing.T) {
 	assert.NoError(t, err)
 	assert.InDelta(t, expected, result, 0.0001)
 }
+
+// Тесты на крайние случаи
+func TestCalculator_EdgeCases_Additional(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		expected float64
+		hasError bool
+		err      error
+	}{
+		{
+			name:     "large number addition",
+			input:    "1e+100 + 1e+100",
+			expected: 2e+100,
+			hasError: false,
+		},
+		{
+			name:     "small number addition",
+			input:    "1e-100 + 1e-100",
+			expected: 2e-100,
+			hasError: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result, err := calculation.Calc(tt.input)
+
+			if tt.hasError {
+				assert.Error(t, err)
+				if tt.err != nil {
+					assert.Equal(t, tt.err, err)
+				}
+			} else {
+				assert.NoError(t, err)
+				assert.InDelta(t, tt.expected, result, 0.0001)
+			}
+		})
+	}
+}
+
+// Тесты на производительность
+func TestCalculator_Performance(t *testing.T) {
+	longExpr := "1"
+	for i := 0; i < 1000; i++ {
+		longExpr += " + 1"
+	}
+
+	result, err := calculation.Calc(longExpr)
+	assert.NoError(t, err)
+	assert.Equal(t, 1001.0, result)
+}
+
+// Тесты на специфические ошибки
+func TestCalculator_SpecificErrors(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		hasError bool
+		err      error
+	}{
+		{"consecutive operators", "1 + + 2", true, calculation.ErrInvalidExpression},
+		{"operator at end", "1 + (2 + 3)", true, calculation.ErrInvalidExpression},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, err := calculation.Calc(tt.input)
+			assert.Error(t, err)
+			if tt.err != nil {
+				assert.Equal(t, tt.err, err)
+			}
+		})
+	}
+}
